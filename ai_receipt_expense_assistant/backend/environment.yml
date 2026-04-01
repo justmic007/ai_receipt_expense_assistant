@@ -1,0 +1,22 @@
+name: receipt-assistant
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - fastapi
+  - uvicorn
+  - sqlalchemy
+  - alembic
+  - psycopg2
+  - python-multipart
+  - python-dotenv
+  - pip
+  - pip:
+    - pydantic-settings
+    - "python-jose[cryptography]"
+    - "passlib[bcrypt]"
+    - "bcrypt==4.0.1"
+    - anthropic
+    - google-generativeai
+
