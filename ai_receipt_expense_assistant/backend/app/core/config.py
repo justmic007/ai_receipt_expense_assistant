@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     # Gemini
     GEMINI_API_KEY: str
 
+    # OpenRouter
+    OPENROUTER_API_KEY: str
+
     # Google Cloud Storage
     GCS_BUCKET_NAME: str
     GCS_CREDENTIALS_PATH: str = ""
