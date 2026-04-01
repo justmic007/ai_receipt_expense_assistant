@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.database import Base
 from app.features.auth.models import User
 from app.features.receipts.models import Receipt
+from app.features.expenses.models import Expense
 
 
 config = context.config
