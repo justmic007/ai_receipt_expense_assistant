@@ -1,10 +1,11 @@
 #  orchestrates: save file → call AI → store result
 
+import uuid
 from sqlalchemy.orm import Session
 from app.features.receipts.models import Receipt
 from app.features.receipts.ai_extractor import extract_receipt_data
+from app.features.expenses.service import create_expense_from_receipt
 from app.shared.exceptions import NotFoundError, ForbiddenError
-import uuid
 
 
 def process_receipt(
@@ -35,11 +36,16 @@ def process_receipt(
         receipt.category = data.get("category")
         receipt.line_items = data.get("line_items", [])
         receipt.raw_extraction = data
+        db.commit()
+        db.refresh(receipt)
+        # Auto-create expense from receipt
+        create_expense_from_receipt(db, receipt)
     else:
         receipt.status = "failed"
 
-    db.commit()
-    db.refresh(receipt)
+        db.commit()
+        db.refresh(receipt)
+
     return receipt
 
 
