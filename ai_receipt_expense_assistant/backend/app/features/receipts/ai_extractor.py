@@ -89,7 +89,7 @@ def extract_receipt_data(file_bytes: bytes, mime_type: str = "image/jpeg") -> di
                     raw_text = raw_text[4:]
 
             extracted = json.loads(raw_text)
-            return {"success": True, "data": extracted}
+            return {"success": True, "data": extracted, "model": model}
 
         except json.JSONDecodeError as e:
             print(f"JSON PARSE ERROR from {model}: {e}")
@@ -104,4 +104,9 @@ def extract_receipt_data(file_bytes: bytes, mime_type: str = "image/jpeg") -> di
             print(f"EXTRACTION ERROR from {model}: {type(e).__name__}: {e}")
             continue
 
-    return {"success": False, "data": {}, "error": "All models failed or rate limited"}
+    return {
+        "success": False,
+        "data": {},
+        "error": "All models failed or rate limited",
+        "model": None,
+    }

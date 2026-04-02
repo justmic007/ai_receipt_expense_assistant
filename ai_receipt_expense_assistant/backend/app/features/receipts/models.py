@@ -24,6 +24,8 @@ class Receipt(Base):
     category = Column(String, nullable=True)
     line_items = Column(JSON, nullable=True)
     raw_extraction = Column(JSON, nullable=True)
+    error_message = Column(String, nullable=True)
+    model_used = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

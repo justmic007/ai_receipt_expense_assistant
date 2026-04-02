@@ -1,8 +1,8 @@
 ## POST /auth/register, /auth/login, /auth/refresh, /auth/logout
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.core.dependencies import get_db, get_current_user_id
+from app.core.dependencies import get_db, get_current_user_id, get_current_admin
 from app.core.security import create_access_token, create_refresh_token, decode_token
 from app.features.auth import service
 from app.features.auth.schemas import (
@@ -13,6 +13,9 @@ from app.features.auth.schemas import (
     RefreshRequest,
 )
 from app.shared.exceptions import UnprocessableError
+from app.shared.location import get_location_from_ip
+from app.features.auth.models import User, UserActivity
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -23,8 +26,23 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: UserLogin, db: Session = Depends(get_db)):
+def login(request: Request, payload: UserLogin, db: Session = Depends(get_db)):
     user = service.authenticate_user(db, payload.email, payload.password)
+
+    # Capture login location
+    ip = request.client.host
+    location = get_location_from_ip(ip)
+    activity = UserActivity(
+        user_id=user.id,
+        action="login",
+        ip_address=location["ip"],
+        country=location["country"],
+        region=location["region"],
+        city=location["city"],
+    )
+    db.add(activity)
+    db.commit()
+
     return TokenResponse(
         access_token=create_access_token(str(user.id)),
         refresh_token=create_refresh_token(str(user.id)),
@@ -48,3 +66,14 @@ def get_me(
     db: Session = Depends(get_db),
 ):
     return service.get_user_by_id(db, user_id)
+
+
+@router.get("/admin/activity")
+def get_activity(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    activity = (
+        db.query(UserActivity).order_by(UserActivity.created_at.desc()).limit(100).all()
+    )
+    return activity

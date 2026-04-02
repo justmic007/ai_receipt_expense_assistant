@@ -36,16 +36,44 @@ def process_receipt(
         receipt.category = data.get("category")
         receipt.line_items = data.get("line_items", [])
         receipt.raw_extraction = data
+        receipt.error_message = None
+        receipt.model_used = result.get("model")
+
         db.commit()
         db.refresh(receipt)
         # Auto-create expense from receipt
         create_expense_from_receipt(db, receipt)
     else:
         receipt.status = "failed"
-
+        receipt.error_message = result.get("error", "AI extraction failed")
         db.commit()
         db.refresh(receipt)
 
+    return receipt
+
+
+def retry_receipt(db, receipt):
+    """Re-run AI extraction on a previously failed receipt."""
+    if not receipt.file_url:
+        receipt.status = "failed"
+        receipt.error_message = "Original file not available for retry"
+        db.commit()
+        db.refresh(receipt)
+        return receipt
+
+    receipt.status = "processing"
+    receipt.error_message = None
+    db.commit()
+
+    # Re-fetch file from storage and retry
+    # For now we mark as failed with helpful message
+    # Full implementation needs GCS file retrieval
+    receipt.status = "failed"
+    receipt.error_message = (
+        "Retry requires file re-upload — original file not stored locally"
+    )
+    db.commit()
+    db.refresh(receipt)
     return receipt
 
 
