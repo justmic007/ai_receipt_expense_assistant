@@ -32,6 +32,8 @@ class ReceiptResponse(BaseModel):
     receipt_date: Optional[str]
     category: Optional[str]
     line_items: Optional[List[Any]]
+    error_message: Optional[str]
+    model_used: Optional[str]
     created_at: datetime
 
     class Config:

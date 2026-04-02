@@ -1,11 +1,14 @@
 # GET /expenses, GET /expenses/summary, PATCH /expenses/{id}
 
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 from app.core.dependencies import get_db, get_current_user_id
 from app.features.receipts import service
 from app.features.receipts.schemas import ReceiptResponse, ReceiptListResponse
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/receipts", tags=["receipts"])
 
 ALLOWED_TYPES = {
@@ -17,7 +20,9 @@ ALLOWED_TYPES = {
 
 
 @router.post("/upload", response_model=ReceiptResponse, status_code=201)
+@limiter.limit("10/minute")
 async def upload_receipt(
+    request: Request,
     file: UploadFile = File(...),
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db),
@@ -56,3 +61,17 @@ def get_receipt(
     db: Session = Depends(get_db),
 ):
     return service.get_receipt_by_id(db, receipt_id, user_id)
+
+
+@router.post("/{receipt_id}/retry", response_model=ReceiptResponse)
+async def retry_receipt(
+    receipt_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    receipt = service.get_receipt_by_id(db, receipt_id, user_id)
+    if receipt.status != "failed":
+        raise HTTPException(
+            status_code=400, detail="Only failed receipts can be retried"
+        )
+    return service.retry_receipt(db, receipt)
