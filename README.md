@@ -26,3 +26,28 @@ The receipt upload flow end to end:
 
 
 ```
+
+### conda activate receipt-expense-assistant
+
+```
+And select the interpreter in VS Code as before (Ctrl+Shift+P → Python: Select Interpreter → pick receipt-assistant).
+Future tip: if you ever add a new package to the project, just add it to environment.yml and run:
+```
+
+
+## uvicorn app.main:app --reload
+
+## conda env update -f environment.yml --prune
+
+## https://aistudio.google.com/
+
+```
+login
+
+{
+  "email": "micah@test.com",
+  "password": "password123"
+}
+```
+## alembic revision --autogenerate -m "create users table"
+## alembic revision --autogenerate -m "create receipts table"

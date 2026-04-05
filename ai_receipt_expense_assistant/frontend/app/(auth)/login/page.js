@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/store/authSlice";
+import api from "@/lib/api";
+import Link from "next/link";
+import toast from "react-hot-toast";
+
+export default function LoginPage() {
+    const router = useRouter();
+    const dispatch = useDispatch();
+    const [form, setForm] = useState({ email: "", password: "" });
+    const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+
+    const validate = () => {
+        const e = {};
+        if (!form.email) e.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email";
+        if (!form.password) e.password = "Password is required";
+        else if (form.password.length < 6) e.password = "At least 6 characters";
+        return e;
+    };
+
+    const handleSubmit = async (ev) => {
+        ev.preventDefault();
+        const errs = validate();
+        if (Object.keys(errs).length) { setErrors(errs); return; }
+        setIsLoading(true);
+        try {
+            const { data } = await api.post("/auth/login", form);
+            const { data: user } = await api.get("/auth/me", {
+                headers: { Authorization: `Bearer ${data.access_token}` },
+            });
+            dispatch(setCredentials({ user, access_token: data.access_token, refresh_token: data.refresh_token }));
+            toast.success("Welcome back!");
+            router.replace("/dashboard");
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Invalid email or password");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const inputStyle = (field) => ({
+        width: "100%",
+        height: 42,
+        padding: "0 14px",
+        border: `1.5px solid ${errors[field] ? "var(--error)" : "var(--border)"}`,
+        borderRadius: "var(--radius-md)",
+        fontSize: 14,
+        color: "var(--text-primary)",
+        background: "var(--card-bg)",
+        outline: "none",
+        transition: "border-color 0.15s",
+    });
+
+    return (
+        <div
+            style={{
+                background: "var(--card-bg)",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--border)",
+                padding: "36px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            }}
+        >
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4, letterSpacing: "-0.02em" }}>
+                Welcome back
+            </h1>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 24 }}>
+                Sign in to your account to continue
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 6 }}>
+                        Email address
+                    </label>
+                    <input
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
+                        placeholder="you@example.com"
+                        style={inputStyle("email")}
+                        onFocus={(e) => { if (!errors.email) e.target.style.borderColor = "var(--blue)"; }}
+                        onBlur={(e) => { if (!errors.email) e.target.style.borderColor = "var(--border)"; }}
+                    />
+                    {errors.email && <p style={{ fontSize: 12, color: "var(--error)", marginTop: 4 }}>{errors.email}</p>}
+                </div>
+
+                <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 6 }}>
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        value={form.password}
+                        onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
+                        placeholder="••••••••"
+                        style={inputStyle("password")}
+                        onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "var(--blue)"; }}
+                        onBlur={(e) => { if (!errors.password) e.target.style.borderColor = "var(--border)"; }}
+                    />
+                    {errors.password && <p style={{ fontSize: 12, color: "var(--error)", marginTop: 4 }}>{errors.password}</p>}
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    style={{
+                        width: "100%",
+                        height: 42,
+                        background: isLoading ? "#93c5fd" : "var(--blue)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "var(--radius-md)",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: isLoading ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        transition: "background 0.15s",
+                        marginTop: 4,
+                    }}
+                    onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.background = "var(--blue-hover)"; }}
+                    onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.background = "var(--blue)"; }}
+                >
+                    {isLoading ? (
+                        <>
+                            <div style={{ width: 16, height: 16, border: "2px solid white", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                            Signing in...
+                        </>
+                    ) : "Sign in"}
+                </button>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </form>
+
+            <p style={{ textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginTop: 20 }}>
+                Don&apos;t have an account?{" "}
+                <Link href="/register" style={{ color: "var(--blue)", fontWeight: 500 }}>
+                    Create one
+                </Link>
+            </p>
+        </div>
+    );
+}

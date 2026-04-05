@@ -24,6 +24,7 @@ class ExpenseResponse(BaseModel):
 class ExpenseUpdate(BaseModel):
     category: Optional[str] = None
     note: Optional[str] = None
+    amount: Optional[float] = None
     is_reviewed: Optional[bool] = None
 
 
