@@ -137,7 +137,29 @@ async def upload_receipt(
     )
 
 
-@router.post("/batch", status_code=202)
+@router.post(
+    "/batch",
+    status_code=202,
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "multipart/form-data": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "files": {
+                                "type": "array",
+                                "items": {"type": "string", "format": "binary"},
+                                "description": "Receipt files (max 3, JPEG/PNG/WEBP/PDF, 10MB each)",
+                            }
+                        },
+                        "required": ["files"],
+                    }
+                }
+            }
+        }
+    },
+)
 @limiter.limit("5/minute")
 async def upload_batch(
     request: Request,
