@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.core.config import settings
 from app.core.database import Base
 from app.features.auth.models import User
-from app.features.receipts.models import Receipt
+from app.features.receipts.models import Receipt, ReceiptBatch
 from app.features.expenses.models import Expense
 
 

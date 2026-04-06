@@ -43,3 +43,15 @@ class ReceiptResponse(BaseModel):
 class ReceiptListResponse(BaseModel):
     total: int
     items: List[ReceiptResponse]
+
+
+class BatchStatusResponse(BaseModel):
+    id: UUID4
+    status: str
+    total_count: int
+    completed_count: int
+    failed_count: int
+    receipts: List[ReceiptResponse]
+
+    class Config:
+        from_attributes = True
