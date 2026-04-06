@@ -11,10 +11,10 @@ def get_expenses_in_range(
 ) -> list:
     query = db.query(Expense).filter(Expense.user_id == uuid.UUID(user_id))
     if from_date:
-        query = query.filter(Expense.expense_date >= from_date)
+        query = query.filter(Expense.created_at >= from_date)
     if to_date:
-        query = query.filter(Expense.expense_date <= to_date)
-    return query.order_by(Expense.expense_date.desc()).all()
+        query = query.filter(Expense.created_at <= to_date + " 23:59:59")
+    return query.order_by(Expense.created_at.desc()).all()
 
 
 def get_receipts_in_range(
@@ -22,10 +22,10 @@ def get_receipts_in_range(
 ) -> list:
     query = db.query(Receipt).filter(Receipt.user_id == uuid.UUID(user_id))
     if from_date:
-        query = query.filter(Receipt.receipt_date >= from_date)
+        query = query.filter(Receipt.created_at >= from_date)
     if to_date:
-        query = query.filter(Receipt.receipt_date <= to_date)
-    return query.order_by(Receipt.receipt_date.desc()).all()
+        query = query.filter(Receipt.created_at <= to_date + " 23:59:59")
+    return query.order_by(Receipt.created_at.desc()).all()
 
 
 def export_expenses_excel(
@@ -213,10 +213,10 @@ def export_expenses_pdf(
     muted = colors.HexColor("#94A3B8")
 
     title_style = ParagraphStyle(
-        "title", fontSize=20, fontName="Helvetica-Bold", textColor=navy, spaceAfter=4
+        "title", fontSize=20, fontName="Helvetica-Bold", textColor=navy, spaceAfter=8, leading=24
     )
     sub_style = ParagraphStyle(
-        "sub", fontSize=10, fontName="Helvetica", textColor=muted, spaceAfter=2
+        "sub", fontSize=10, fontName="Helvetica", textColor=muted, spaceAfter=4, leading=14
     )
     section_style = ParagraphStyle(
         "section",
@@ -279,22 +279,35 @@ def export_expenses_pdf(
     if not expenses:
         story.append(Paragraph("No expenses found for this date range.", sub_style))
     else:
-        exp_data = [["Date", "Merchant", "Category", "Amount", "Note"]]
-        for e in expenses:
-            exp_data.append(
-                [
-                    e.expense_date or "—",
-                    (e.merchant_name or "—")[:30],
-                    e.category or "—",
-                    f"{e.currency} {e.amount:,.2f}",
-                    (e.note or "—")[:20],
-                ]
-            )
+        cell_style = ParagraphStyle("cell", fontSize=8, fontName="Helvetica", leading=11)
+        header_cell_style = ParagraphStyle("hcell", fontSize=9, fontName="Helvetica-Bold", textColor=colors.white, leading=12)
 
-        exp_data.append(["", "TOTAL", "", f"{currency} {total_spent:,.2f}", ""])
+        exp_data = [[
+            Paragraph("Date", header_cell_style),
+            Paragraph("Merchant", header_cell_style),
+            Paragraph("Category", header_cell_style),
+            Paragraph("Amount", header_cell_style),
+            Paragraph("Note", header_cell_style),
+        ]]
+        for e in expenses:
+            exp_data.append([
+                Paragraph(e.expense_date or "—", cell_style),
+                Paragraph(e.merchant_name or "—", cell_style),
+                Paragraph(e.category or "—", cell_style),
+                Paragraph(f"{e.currency} {e.amount:,.2f}", cell_style),
+                Paragraph(e.note or "—", cell_style),
+            ])
+
+        exp_data.append([
+            Paragraph("", cell_style),
+            Paragraph("TOTAL", ParagraphStyle("bold", fontSize=9, fontName="Helvetica-Bold", leading=12)),
+            Paragraph("", cell_style),
+            Paragraph(f"{currency} {total_spent:,.2f}", ParagraphStyle("bold", fontSize=9, fontName="Helvetica-Bold", leading=12)),
+            Paragraph("", cell_style),
+        ])
 
         exp_table = Table(
-            exp_data, colWidths=[25 * mm, 55 * mm, 35 * mm, 35 * mm, 35 * mm]
+            exp_data, colWidths=[22 * mm, 60 * mm, 35 * mm, 32 * mm, 28 * mm]
         )
         exp_table.setStyle(
             TableStyle(
