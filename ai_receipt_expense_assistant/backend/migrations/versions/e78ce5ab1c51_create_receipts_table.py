@@ -5,14 +5,15 @@ Revises: b511afbc10ef
 Create Date: 2026-04-01 08:23:35.584115
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
 
 
-revision: str = 'e78ce5ab1c51'
-down_revision: Union[str, None] = 'b511afbc10ef'
+revision: str = "e78ce5ab1c51"
+down_revision: Union[str, None] = "b511afbc10ef"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

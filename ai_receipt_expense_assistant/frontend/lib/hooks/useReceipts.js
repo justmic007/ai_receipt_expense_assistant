@@ -52,3 +52,37 @@ export function useUploadReceipt() {
         },
     });
 }
+
+export function useBatchUpload() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (files) => {
+            const formData = new FormData();
+            files.forEach((file) => formData.append("files", file));
+            const res = await api.post("/receipts/batch", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            return res.data;
+        },
+        onError: (error) => {
+            const message = error.response?.data?.detail || "Batch upload failed";
+            toast.error(message);
+        },
+    });
+}
+
+export function useBatchStatus(batchId) {
+    return useQuery({
+        queryKey: ["batch", batchId],
+        queryFn: async () => {
+            const res = await api.get(`/receipts/batch/${batchId}`);
+            return res.data;
+        },
+        enabled: !!batchId,
+        refetchInterval: (data) => {
+            if (!data) return 5000;
+            return data.status === "completed" ? false : 5000;
+        },
+    });
+}

@@ -77,7 +77,7 @@
 #     return service.retry_receipt(db, receipt)
 
 
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request, Query
 from fastapi import Form
 from typing import List
 from sqlalchemy.orm import Session
@@ -241,6 +241,35 @@ def get_batch_status(
             for r in receipts
         ],
     }
+
+
+@router.get("/export")
+def export_receipts(
+    format: str = Query("excel", enum=["excel", "pdf"]),
+    from_date: str = Query(None),
+    to_date: str = Query(None),
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    from app.features.expenses.export import export_expenses_excel, export_expenses_pdf
+    from fastapi.responses import StreamingResponse
+    import io
+    if format == "excel":
+        file_bytes = export_expenses_excel(db, user_id, from_date, to_date)
+        filename = f"receipts_{from_date or 'all'}_{to_date or 'today'}.xlsx"
+        return StreamingResponse(
+            io.BytesIO(file_bytes),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
+    else:
+        file_bytes = export_expenses_pdf(db, user_id, from_date, to_date)
+        filename = f"receipts_{from_date or 'all'}_{to_date or 'today'}.pdf"
+        return StreamingResponse(
+            io.BytesIO(file_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
 
 
 @router.get("", response_model=ReceiptListResponse)
