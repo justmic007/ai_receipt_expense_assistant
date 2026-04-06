@@ -21,4 +21,6 @@ dependencies:
     - google-genai
     - httpx
     - slowapi
+    - openpyxl
+    - reportlab
 
