@@ -51,3 +51,7 @@ login
 ```
 ## alembic revision --autogenerate -m "create users table"
 ## alembic revision --autogenerate -m "create receipts table"
+
+
+# alembic revision --autogenerate -m "add email verification to users"
+# alembic upgrade head

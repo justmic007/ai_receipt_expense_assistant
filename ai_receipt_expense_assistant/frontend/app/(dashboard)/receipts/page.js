@@ -211,8 +211,8 @@ export default function ReceiptsPage() {
         <div>
             <div style={{ marginBottom: 24, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Expenses</h1>
-                    <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Track and categorise your spending</p>
+                    <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Receipts</h1>
+                    <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Upload and manage your receipts</p>
                 </div>
                 <button
                     onClick={() => setShowExport(true)}
