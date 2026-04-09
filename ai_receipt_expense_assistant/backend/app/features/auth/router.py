@@ -77,3 +77,9 @@ def get_activity(
         db.query(UserActivity).order_by(UserActivity.created_at.desc()).limit(100).all()
     )
     return activity
+
+
+@router.get("/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    service.verify_email(db, token)
+    return {"message": "Email verified successfully"}

@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     GCS_BUCKET_NAME: str
     GCS_CREDENTIALS_PATH: str = ""
 
+    # Resend
+    RESEND_API_KEY: str
+    FRONTEND_URL: str
+
     class Config:
         env_file = ".env"
         case_sensitive = True
