@@ -7,6 +7,7 @@ import { setCredentials } from "@/store/authSlice";
 import api from "@/lib/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -14,6 +15,7 @@ export default function LoginPage() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const validate = () => {
         const e = {};
@@ -95,15 +97,24 @@ export default function LoginPage() {
                     <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 6 }}>
                         Password
                     </label>
-                    <input
-                        type="password"
-                        value={form.password}
-                        onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
-                        placeholder="••••••••"
-                        style={inputStyle("password")}
-                        onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "var(--blue)"; }}
-                        onBlur={(e) => { if (!errors.password) e.target.style.borderColor = "var(--border)"; }}
-                    />
+                    <div style={{ position: "relative" }}>
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            value={form.password}
+                            onChange={(e) => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: "" }); }}
+                            placeholder="••••••••"
+                            style={{ ...inputStyle("password"), paddingRight: 40 }}
+                            onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "var(--blue)"; }}
+                            onBlur={(e) => { if (!errors.password) e.target.style.borderColor = "var(--border)"; }}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(p => !p)}
+                            style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 0, display: "flex" }}
+                        >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
                     {errors.password && <p style={{ fontSize: 12, color: "var(--error)", marginTop: 4 }}>{errors.password}</p>}
                 </div>
 

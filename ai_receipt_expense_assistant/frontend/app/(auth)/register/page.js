@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 const fields = [
     { key: "full_name", label: "Full name", type: "text", placeholder: "Micah Johnson" },
@@ -18,6 +19,7 @@ export default function RegisterPage() {
     const [form, setForm] = useState({ full_name: "", email: "", password: "", confirmPassword: "" });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showPasswords, setShowPasswords] = useState({ password: false, confirmPassword: false });
 
     const validate = () => {
         const e = {};
@@ -87,15 +89,26 @@ export default function RegisterPage() {
                         <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 6 }}>
                             {label}
                         </label>
-                        <input
-                            type={type}
-                            value={form[key]}
-                            onChange={(e) => { setForm({ ...form, [key]: e.target.value }); setErrors({ ...errors, [key]: "" }); }}
-                            placeholder={placeholder}
-                            style={inputStyle(key)}
-                            onFocus={(e) => { if (!errors[key]) e.target.style.borderColor = "var(--blue)"; }}
-                            onBlur={(e) => { if (!errors[key]) e.target.style.borderColor = "var(--border)"; }}
-                        />
+                        <div style={{ position: "relative" }}>
+                            <input
+                                type={type === "password" ? (showPasswords[key] ? "text" : "password") : type}
+                                value={form[key]}
+                                onChange={(e) => { setForm({ ...form, [key]: e.target.value }); setErrors({ ...errors, [key]: "" }); }}
+                                placeholder={placeholder}
+                                style={{ ...inputStyle(key), paddingRight: type === "password" ? 40 : 14 }}
+                                onFocus={(e) => { if (!errors[key]) e.target.style.borderColor = "var(--blue)"; }}
+                                onBlur={(e) => { if (!errors[key]) e.target.style.borderColor = "var(--border)"; }}
+                            />
+                            {type === "password" && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasswords(p => ({ ...p, [key]: !p[key] }))}
+                                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 0, display: "flex" }}
+                                >
+                                    {showPasswords[key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            )}
+                        </div>
                         {errors[key] && <p style={{ fontSize: 12, color: "var(--error)", marginTop: 4 }}>{errors[key]}</p>}
                     </div>
                 ))}

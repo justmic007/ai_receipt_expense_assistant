@@ -29,6 +29,7 @@ export default function Providers({ children }) {
                 {children}
                 <Toaster
                     position="top-center"
+                    containerStyle={{ top: 60 }}
                     toastOptions={{
                         duration: 4000,
                         style: {
