@@ -28,7 +28,7 @@ export default function Providers({ children }) {
             <QueryClientProvider client={queryClient}>
                 {children}
                 <Toaster
-                    position="top-right"
+                    position="top-center"
                     toastOptions={{
                         duration: 4000,
                         style: {
