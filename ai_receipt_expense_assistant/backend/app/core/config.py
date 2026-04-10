@@ -18,16 +18,16 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Anthropic
-    ANTHROPIC_API_KEY: str
+    ANTHROPIC_API_KEY: str = ""
 
     # Gemini
-    GEMINI_API_KEY: str
+    GEMINI_API_KEY: str = ""
 
     # OpenRouter
     OPENROUTER_API_KEY: str
 
     # Google Cloud Storage
-    GCS_BUCKET_NAME: str
+    GCS_BUCKET_NAME: str = ""
     GCS_CREDENTIALS_PATH: str = ""
 
     # Resend
