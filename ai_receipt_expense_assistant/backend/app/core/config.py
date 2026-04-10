@@ -30,8 +30,9 @@ class Settings(BaseSettings):
     GCS_BUCKET_NAME: str = ""
     GCS_CREDENTIALS_PATH: str = ""
 
-    # Resend
-    RESEND_API_KEY: str
+    # Gmail
+    GMAIL_USER: str
+    GMAIL_APP_PASSWORD: str
     FRONTEND_URL: str
 
     class Config:
