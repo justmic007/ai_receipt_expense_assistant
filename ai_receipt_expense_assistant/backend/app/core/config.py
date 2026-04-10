@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     GMAIL_USER: str
     GMAIL_APP_PASSWORD: str
     FRONTEND_URL: str
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
 
     class Config:
         env_file = ".env"
