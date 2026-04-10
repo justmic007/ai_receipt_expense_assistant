@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { CheckCircle, XCircle } from "lucide-react";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [status, setStatus] = useState("verifying");
@@ -45,5 +45,13 @@ export default function VerifyEmailPage() {
                 </>
             )}
         </div>
+    );
+}
+
+export default function VerifyEmailPage() {
+    return (
+        <Suspense fallback={<div style={{ textAlign: "center", padding: 36 }}>Loading...</div>}>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }
