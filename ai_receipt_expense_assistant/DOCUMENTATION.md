@@ -58,7 +58,7 @@ backend/app/
 - slowapi (rate limiting)
 - python-jose (JWT)
 - passlib + bcrypt (password hashing)
-- smtplib (email via Gmail SMTP)
+- httpx (Brevo HTTP API for transactional email)
 
 ### Entry Point
 `app/main.py` — initialises FastAPI, registers CORS middleware, rate limiter, and includes the three routers under `/api/v1`.
@@ -118,7 +118,7 @@ Available at `/api/docs` (Swagger) and `/api/redoc` when the backend is running.
 ## 4. Frontend
 
 ### Stack
-- Next.js 15 (App Router)
+- Next.js 16 (App Router)
 - Redux Toolkit (auth state)
 - TanStack Query (server state, caching)
 - Axios (HTTP client with interceptors)
@@ -262,18 +262,20 @@ Batch uploads (up to 3 files) are processed serially in a background thread with
 4. Frontend stores both in localStorage, injects access token on every request
 5. On 401, frontend automatically calls `POST /auth/refresh` with the refresh token to get new tokens
 
-### Email (Gmail SMTP)
-Uses Python's built-in `smtplib` with Gmail SMTP SSL on port 465. No third-party email library needed.
+### Email (Brevo HTTP API)
+Uses Brevo's transactional email HTTP API via `httpx`. Works on Render's free tier (no SMTP port restrictions).
 
 Requirements:
-- Gmail account with 2-Step Verification enabled
-- App Password generated for this app (not your real Gmail password)
-- Daily limit: ~500 emails (shared across all apps using the same Gmail account)
+- Brevo account (free tier: 300 emails/month)
+- Brevo API key from dashboard → SMTP & API → API Keys
+- Sender email verified in Brevo dashboard → Senders
 
 The verification email contains a button linking to:
 ```
 {FRONTEND_URL}/verify-email?token={token}
 ```
+
+If a user doesn't receive the verification email, they can request a resend from the login page.
 
 ---
 
@@ -300,8 +302,8 @@ GCS_BUCKET_NAME=
 GCS_CREDENTIALS_PATH=
 
 # Email
-GMAIL_USER=yourname@gmail.com
-GMAIL_APP_PASSWORD=your16charapppassword
+BREVO_API_KEY=your-brevo-api-key
+GMAIL_USER=yourname@gmail.com   # used as sender address
 
 # App
 FRONTEND_URL=https://usereceiptai.vercel.app
