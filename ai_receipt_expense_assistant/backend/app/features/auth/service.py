@@ -23,6 +23,97 @@ def get_user_by_id(db: Session, user_id: str) -> User:
     return user
 
 
+def send_verification_email(user: User, token: str):
+    verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+    first_name = user.full_name.split()[0] if user.full_name else "there"
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 16px;">
+        <tr>
+          <td align="center">
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+              <!-- Header -->
+              <tr>
+                <td style="background:#0f172a;border-radius:12px 12px 0 0;padding:28px 40px;text-align:center;">
+                  <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                    <tr>
+                      <td style="background:#2563eb;border-radius:8px;width:36px;height:36px;text-align:center;vertical-align:middle;">
+                        <span style="color:white;font-size:18px;font-weight:700;">R</span>
+                      </td>
+                      <td style="padding-left:10px;">
+                        <span style="color:white;font-size:18px;font-weight:700;letter-spacing:-0.02em;">ReceiptAI</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Body -->
+              <tr>
+                <td style="background:#ffffff;padding:40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+                  <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.02em;">Verify your email</h1>
+                  <p style="margin:0 0 24px;font-size:14px;color:#64748b;line-height:1.6;">
+                    Hi {first_name}, thanks for signing up for ReceiptAI. Click the button below to verify your email address and activate your account.
+                  </p>
+
+                  <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                    <tr>
+                      <td style="background:#2563eb;border-radius:8px;">
+                        <a href="{verify_url}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                          Verify Email Address
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <p style="margin:0 0 8px;font-size:13px;color:#94a3b8;line-height:1.6;">
+                    Or copy and paste this link into your browser:
+                  </p>
+                  <p style="margin:0;font-size:12px;color:#2563eb;word-break:break-all;">
+                    {verify_url}
+                  </p>
+
+                  <hr style="border:none;border-top:1px solid #e2e8f0;margin:28px 0;">
+
+                  <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;">
+                    This link expires in 24 hours. If you didn't create a ReceiptAI account, you can safely ignore this email.
+                  </p>
+                </td>
+              </tr>
+
+              <!-- Footer -->
+              <tr>
+                <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px 40px;text-align:center;">
+                  <p style="margin:0;font-size:12px;color:#94a3b8;">
+                    © 2026 ReceiptAI · AI-powered expense tracking
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Verify your ReceiptAI account"
+    msg["From"] = f"ReceiptAI <{settings.GMAIL_USER}>"
+    msg["To"] = user.email
+    msg.attach(MIMEText(html, "html"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
+        server.sendmail(settings.GMAIL_USER, user.email, msg.as_string())
+
+
 def create_user(db: Session, payload: UserRegister) -> User:
     if get_user_by_email(db, payload.email):
         raise ConflictError("A user with this email already exists")
@@ -40,29 +131,7 @@ def create_user(db: Session, payload: UserRegister) -> User:
     db.commit()
     db.refresh(user)
 
-    verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Verify your ReceiptAI account"
-    msg["From"] = f"ReceiptAI <{settings.GMAIL_USER}>"
-    msg["To"] = user.email
-    msg.attach(
-        MIMEText(
-            f"""
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-            <h2 style="color: #0f172a;">Verify your email</h2>
-            <p style="color: #475569;">Hi {user.full_name or 'there'}, click the button below to verify your account.</p>
-            <a href="{verify_url}" style="display:inline-block;background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0;">
-                Verify Email
-            </a>
-            <p style="color:#94a3b8;font-size:12px;">If you didn't create an account, ignore this email.</p>
-        </div>
-    """,
-            "html",
-        )
-    )
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
-        server.sendmail(settings.GMAIL_USER, user.email, msg.as_string())
+    send_verification_email(user, token)
     return user
 
 

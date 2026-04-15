@@ -16,6 +16,8 @@ export default function LoginPage() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [unverifiedEmail, setUnverifiedEmail] = useState(null);
+
 
     const validate = () => {
         const e = {};
@@ -40,10 +42,16 @@ export default function LoginPage() {
             toast.success("Welcome back!");
             router.replace("/dashboard");
         } catch (err) {
-            toast.error(err.response?.data?.detail || "Invalid email or password");
+            const detail = err.response?.data?.detail || "";
+            if (detail.toLowerCase().includes("verify")) {
+                setUnverifiedEmail(form.email);
+            } else {
+                toast.error(detail || "Invalid email or password");
+            }
         } finally {
             setIsLoading(false);
         }
+
     };
 
     const inputStyle = (field) => ({
@@ -58,6 +66,20 @@ export default function LoginPage() {
         outline: "none",
         transition: "border-color 0.15s",
     });
+
+    const handleResend = async () => {
+        setIsLoading(true);
+        try {
+            await api.post("/auth/resend-verification", { email: form.email, password: form.password });
+            toast.success("Verification email sent — check your inbox");
+            setUnverifiedEmail(null);
+        } catch {
+            toast.error("Failed to resend — try again");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     return (
         <div
@@ -149,6 +171,30 @@ export default function LoginPage() {
                     ) : "Sign in"}
                 </button>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                {unverifiedEmail && (
+                    <div style={{ marginTop: 12, padding: "12px 16px", background: "var(--warning-bg)", borderRadius: "var(--radius-md)", border: "1px solid #fde68a" }}>
+                        <p style={{ fontSize: 13, color: "var(--warning-text)", marginBottom: 8 }}>
+                            Your email is not verified. Check your inbox or resend the verification email.
+                        </p>
+                        <button
+                            onClick={handleResend}
+                            disabled={isLoading}
+                            style={{
+                                fontSize: 13,
+                                fontWeight: 500,
+                                color: "var(--warning-text)",
+                                background: "none",
+                                border: "1px solid var(--warning)",
+                                borderRadius: "var(--radius-md)",
+                                padding: "6px 14px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            Resend verification email
+                        </button>
+                    </div>
+                )}
+
             </form>
 
             <p style={{ textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginTop: 20 }}>
