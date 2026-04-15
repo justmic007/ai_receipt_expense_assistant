@@ -30,9 +30,9 @@ class Settings(BaseSettings):
     GCS_BUCKET_NAME: str = ""
     GCS_CREDENTIALS_PATH: str = ""
 
-    # Gmail
+    # Email
+    BREVO_API_KEY: str
     GMAIL_USER: str
-    GMAIL_APP_PASSWORD: str
     FRONTEND_URL: str
     ALLOWED_ORIGINS: str = "http://localhost:3000"
 

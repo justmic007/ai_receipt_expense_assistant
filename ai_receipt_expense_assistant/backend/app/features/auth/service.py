@@ -1,9 +1,7 @@
 ## business logic: create_user, authenticate_user
 
 import secrets
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import httpx
 from app.core.config import settings
 from sqlalchemy.orm import Session
 from app.features.auth.models import User
@@ -103,15 +101,20 @@ def send_verification_email(user: User, token: str):
     </html>
     """
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Verify your ReceiptAI account"
-    msg["From"] = f"ReceiptAI <{settings.GMAIL_USER}>"
-    msg["To"] = user.email
-    msg.attach(MIMEText(html, "html"))
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
-        server.sendmail(settings.GMAIL_USER, user.email, msg.as_string())
+    response = httpx.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers={
+            "api-key": settings.BREVO_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "sender": {"name": "ReceiptAI", "email": settings.GMAIL_USER},
+            "to": [{"email": user.email, "name": user.full_name or user.email}],
+            "subject": "Verify your ReceiptAI account",
+            "htmlContent": html,
+        },
+    )
+    response.raise_for_status()
 
 
 def create_user(db: Session, payload: UserRegister) -> User:
