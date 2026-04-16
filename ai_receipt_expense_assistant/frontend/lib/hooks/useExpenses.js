@@ -39,3 +39,23 @@ export function useUpdateExpense() {
         },
     });
 }
+
+export function useDeleteExpense() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (expenseId) => {
+            const res = await api.delete(`/expenses/${expenseId}`);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["expenses"] });
+            queryClient.invalidateQueries({ queryKey: ["expenses", "summary"] });
+            toast.success("Expense deleted successfully");
+        },
+        onError: (error) => {
+            const message = error.response?.data?.detail || "Failed to delete expense";
+            toast.error(message);
+        },
+    });
+}

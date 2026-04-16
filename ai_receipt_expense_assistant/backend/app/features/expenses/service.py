@@ -91,3 +91,11 @@ def get_spend_summary(db: Session, user_id: str) -> dict:
         "expense_count": len(expenses),
         "by_category": by_category,
     }
+
+
+def delete_expense(db: Session, expense_id: str, user_id: str) -> dict:
+    """Delete an expense by ID."""
+    expense = get_expense_by_id(db, expense_id, user_id)
+    db.delete(expense)
+    db.commit()
+    return {"message": "Expense deleted successfully", "expense_id": str(expense.id)}

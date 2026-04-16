@@ -86,3 +86,23 @@ export function useBatchStatus(batchId) {
         },
     });
 }
+
+export function useDeleteReceipt() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (receiptId) => {
+            const res = await api.delete(`/receipts/${receiptId}`);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["receipts"] });
+            queryClient.invalidateQueries({ queryKey: ["expenses"] });
+            toast.success("Receipt deleted successfully");
+        },
+        onError: (error) => {
+            const message = error.response?.data?.detail || "Failed to delete receipt";
+            toast.error(message);
+        },
+    });
+}
