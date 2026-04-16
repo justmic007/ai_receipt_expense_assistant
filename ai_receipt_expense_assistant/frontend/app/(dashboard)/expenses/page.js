@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useExpenses, useExpenseSummary, useUpdateExpense } from "@/lib/hooks/useExpenses";
+import { useExpenses, useExpenseSummary, useUpdateExpense, useDeleteExpense } from "@/lib/hooks/useExpenses";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { TrendingUp, CreditCard, Tag, Edit2, Check, X, Download } from "lucide-react";
+import { TrendingUp, CreditCard, Tag, Edit2, Check, X, Download, Trash2 } from "lucide-react";
 import ExportModal from "@/components/shared/ExportModal";
 
 const CATEGORIES = [
@@ -42,9 +42,11 @@ export default function ExpensesPage() {
     const { data: expenses, isLoading: eLoading } = useExpenses();
     const { data: summary, isLoading: sLoading } = useExpenseSummary();
     const { mutate: updateExpense, isPending } = useUpdateExpense();
+    const { mutate: deleteExpense, isPending: isDeleting } = useDeleteExpense();
     const [editingId, setEditingId] = useState(null);
     const [editData, setEditData] = useState({});
     const [showExport, setShowExport] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
 
     const startEdit = (expense) => {
         setEditingId(expense.id);
@@ -53,6 +55,14 @@ export default function ExpensesPage() {
 
     const saveEdit = (id) => {
         updateExpense({ id, data: editData }, { onSuccess: () => { setEditingId(null); setEditData({}); } });
+    };
+
+    const handleDelete = (id) => {
+        deleteExpense(id, {
+            onSuccess: () => {
+                setDeletingId(null);
+            },
+        });
     };
 
     const isLoading = eLoading || sLoading;
@@ -188,12 +198,20 @@ export default function ExpensesPage() {
                                                 </button>
                                             </>
                                         ) : (
-                                            <button
-                                                onClick={() => startEdit(expense)}
-                                                style={{ padding: "4px 10px", fontSize: 12, background: "var(--page-bg)", color: "var(--text-secondary)", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer" }}
-                                            >
-                                                Edit
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => startEdit(expense)}
+                                                    style={{ padding: "4px 10px", fontSize: 12, background: "var(--page-bg)", color: "var(--text-secondary)", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer" }}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeletingId(expense.id)}
+                                                    style={{ padding: "4px 10px", fontSize: 12, background: "var(--page-bg)", color: "var(--error)", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer" }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -258,7 +276,10 @@ export default function ExpensesPage() {
                                                             <button onClick={() => setEditingId(null)} style={{ padding: 4, color: "#dc2626", border: "none", background: "none", cursor: "pointer" }}><X size={16} /></button>
                                                         </div>
                                                     ) : (
-                                                        <button onClick={() => startEdit(expense)} style={{ padding: 4, color: "var(--text-muted)", border: "none", background: "none", cursor: "pointer" }}><Edit2 size={14} /></button>
+                                                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                                                            <button onClick={() => startEdit(expense)} style={{ padding: 4, color: "var(--text-muted)", border: "none", background: "none", cursor: "pointer" }}><Edit2 size={14} /></button>
+                                                            <button onClick={() => setDeletingId(expense.id)} style={{ padding: 4, color: "var(--error)", border: "none", background: "none", cursor: "pointer" }}><Trash2 size={14} /></button>
+                                                        </div>
                                                     )}
                                                 </td>
                                             </tr>
@@ -269,6 +290,36 @@ export default function ExpensesPage() {
                         </div>
                     </div>
                 </>
+            )}
+
+            {deletingId && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+                    <div style={{ background: "var(--card-bg)", borderRadius: "var(--radius-lg)", padding: 24, maxWidth: "28rem" }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, color: "var(--text-primary)", marginBottom: 12 }}>Delete expense?</h3>
+                        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 32, lineHeight: 1.5 }}>
+                            This will permanently delete this expense. The receipt will remain in your records. This action cannot be undone.
+                        </p>
+                        <div style={{ display: "flex", gap: 16, justifyContent: "flex-end" }}>
+                            <button
+                                onClick={() => setDeletingId(null)}
+                                style={{ padding: "10px 20px", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", background: "var(--page-bg)", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer", transition: "all 0.15s" }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "var(--border)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "var(--page-bg)"}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDelete(deletingId)}
+                                disabled={isDeleting}
+                                style={{ padding: "10px 20px", fontSize: 13, fontWeight: 500, color: "white", background: "var(--error)", border: "none", borderRadius: 6, cursor: isDeleting ? "not-allowed" : "pointer", opacity: isDeleting ? 0.6 : 1, transition: "all 0.15s" }}
+                                onMouseEnter={(e) => { if (!isDeleting) e.currentTarget.style.background = "#b91c1c"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = "var(--error)"; }}
+                            >
+                                {isDeleting ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

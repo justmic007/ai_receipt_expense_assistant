@@ -197,3 +197,24 @@ def retry_receipt(db, receipt):
     db.commit()
     db.refresh(receipt)
     return receipt
+
+
+def delete_receipt(db: Session, receipt_id: str, user_id: str) -> dict:
+    """Delete a receipt and its associated expense(s)."""
+    from app.features.expenses.models import Expense
+
+    receipt = get_receipt_by_id(db, receipt_id, user_id)
+
+    # Delete associated expenses
+    expenses = db.query(Expense).filter(Expense.receipt_id == receipt.id).all()
+    for expense in expenses:
+        db.delete(expense)
+
+    # Delete the receipt
+    db.delete(receipt)
+    db.commit()
+
+    return {
+        "message": "Receipt and associated expenses deleted successfully",
+        "receipt_id": str(receipt.id),
+    }

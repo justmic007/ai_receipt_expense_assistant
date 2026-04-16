@@ -224,3 +224,12 @@ def retry_receipt(
             status_code=400, detail="Only failed receipts can be retried"
         )
     return service.retry_receipt(db, receipt)
+
+
+@router.delete("/{receipt_id}", status_code=200)
+def delete_receipt(
+    receipt_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    return service.delete_receipt(db, receipt_id, user_id)

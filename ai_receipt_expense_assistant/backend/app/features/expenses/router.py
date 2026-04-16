@@ -81,3 +81,12 @@ def update_expense(
     db: Session = Depends(get_db),
 ):
     return service.update_expense(db, expense_id, user_id, payload)
+
+
+@router.delete("/{expense_id}", status_code=200)
+def delete_expense(
+    expense_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    return service.delete_expense(db, expense_id, user_id)
