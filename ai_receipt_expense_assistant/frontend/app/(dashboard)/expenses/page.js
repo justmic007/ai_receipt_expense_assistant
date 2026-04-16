@@ -293,8 +293,8 @@ export default function ExpensesPage() {
             )}
 
             {deletingId && (
-                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
-                    <div style={{ background: "var(--card-bg)", borderRadius: "var(--radius-lg)", padding: 24, maxWidth: "28rem" }}>
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "16px" }}>
+                    <div style={{ background: "var(--card-bg)", borderRadius: "var(--radius-lg)", padding: 24, maxWidth: "24rem", width: "100%" }}>
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: "var(--text-primary)", marginBottom: 12 }}>Delete expense?</h3>
                         <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 32, lineHeight: 1.5 }}>
                             This will permanently delete this expense. The receipt will remain in your records. This action cannot be undone.
