@@ -2,12 +2,12 @@
 
 import { useReceipts, useUploadReceipt, useBatchUpload, useBatchStatus } from "@/lib/hooks/useReceipts";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { formatCurrency, formatDate, truncate } from "@/lib/utils";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Upload, FileImage, CheckCircle, AlertCircle, ChevronRight, Download } from "lucide-react";
+import { Upload, FileImage, CheckCircle, AlertCircle, ChevronRight, Download, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExportModal from "@/components/shared/ExportModal";
 
@@ -203,8 +203,19 @@ function UploadZone() {
 }
 
 export default function ReceiptsPage() {
-    const { data: receipts, isLoading } = useReceipts();
     const [showExport, setShowExport] = useState(false);
+    const [filters, setFilters] = useState({
+        search: "",
+        status: "",
+        category: "",
+        dateFrom: "",
+        dateTo: "",
+        amountMin: "",
+        amountMax: "",
+    });
+    const [showAdvanced, setShowAdvanced] = useState(false);
+
+    const { data: receipts, isLoading } = useReceipts(filters);
 
 
     return (
@@ -243,6 +254,185 @@ export default function ReceiptsPage() {
 
             <UploadZone />
 
+            {/* Search and Filters */}
+            <div style={{ background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-lg)", padding: 16, marginBottom: 16 }}>
+                {/* Search Bar */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, position: "relative" }}>
+                    <Search size={16} color="var(--text-muted)" style={{ position: "absolute", left: 12 }} />
+                    <input
+                        type="text"
+                        placeholder="Search by merchant or filename..."
+                        value={filters.search}
+                        onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                        style={{
+                            width: "100%",
+                            padding: "8px 12px 8px 36px",
+                            fontSize: 13,
+                            border: "1px solid var(--border)",
+                            borderRadius: 6,
+                            outline: "none",
+                            background: "var(--page-bg)",
+                            color: "var(--text-primary)",
+                        }}
+                    />
+                    {filters.search && (
+                        <button
+                            onClick={() => setFilters({ ...filters, search: "" })}
+                            style={{ padding: 4, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
+                </div>
+
+                {/* Quick Filters */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                    {/* Status Filter */}
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        style={{
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            border: "1px solid var(--border)",
+                            borderRadius: 6,
+                            background: "var(--page-bg)",
+                            color: "var(--text-primary)",
+                            cursor: "pointer",
+                            outline: "none",
+                        }}
+                    >
+                        <option value="">All statuses</option>
+                        <option value="completed">Completed</option>
+                        <option value="processing">Processing</option>
+                        <option value="failed">Failed</option>
+                    </select>
+
+                    {/* Category Filter */}
+                    <select
+                        value={filters.category}
+                        onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                        style={{
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            border: "1px solid var(--border)",
+                            borderRadius: 6,
+                            background: "var(--page-bg)",
+                            color: "var(--text-primary)",
+                            cursor: "pointer",
+                            outline: "none",
+                        }}
+                    >
+                        <option value="">All categories</option>
+                        <option value="Food & Dining">Food & Dining</option>
+                        <option value="Groceries">Groceries</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    {/* Advanced Filters Toggle */}
+                    <button
+                        onClick={() => setShowAdvanced(!showAdvanced)}
+                        style={{
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            border: "1px solid var(--border)",
+                            borderRadius: 6,
+                            background: "var(--page-bg)",
+                            color: showAdvanced ? "var(--blue)" : "var(--text-secondary)",
+                            cursor: "pointer",
+                            fontWeight: showAdvanced ? 500 : 400,
+                        }}
+                    >
+                        {showAdvanced ? "Hide filters" : "Advanced"}
+                    </button>
+                </div>
+
+                {/* Advanced Filters */}
+                {showAdvanced && (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+                        <div>
+                            <label style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>From date</label>
+                            <input
+                                type="date"
+                                value={filters.dateFrom}
+                                onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                                style={{
+                                    width: "100%",
+                                    padding: "6px 8px",
+                                    fontSize: 12,
+                                    border: "1px solid var(--border)",
+                                    borderRadius: 6,
+                                    background: "var(--page-bg)",
+                                    color: "var(--text-primary)",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>To date</label>
+                            <input
+                                type="date"
+                                value={filters.dateTo}
+                                onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                                style={{
+                                    width: "100%",
+                                    padding: "6px 8px",
+                                    fontSize: 12,
+                                    border: "1px solid var(--border)",
+                                    borderRadius: 6,
+                                    background: "var(--page-bg)",
+                                    color: "var(--text-primary)",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Min amount</label>
+                            <input
+                                type="number"
+                                placeholder="0"
+                                value={filters.amountMin}
+                                onChange={(e) => setFilters({ ...filters, amountMin: e.target.value })}
+                                style={{
+                                    width: "100%",
+                                    padding: "6px 8px",
+                                    fontSize: 12,
+                                    border: "1px solid var(--border)",
+                                    borderRadius: 6,
+                                    background: "var(--page-bg)",
+                                    color: "var(--text-primary)",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Max amount</label>
+                            <input
+                                type="number"
+                                placeholder="999999"
+                                value={filters.amountMax}
+                                onChange={(e) => setFilters({ ...filters, amountMax: e.target.value })}
+                                style={{
+                                    width: "100%",
+                                    padding: "6px 8px",
+                                    fontSize: 12,
+                                    border: "1px solid var(--border)",
+                                    borderRadius: 6,
+                                    background: "var(--page-bg)",
+                                    color: "var(--text-primary)",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                 <h2 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
                     All receipts
@@ -252,6 +442,30 @@ export default function ReceiptsPage() {
                         </span>
                     )}
                 </h2>
+                {(filters.search || filters.status || filters.category || filters.dateFrom || filters.dateTo || filters.amountMin || filters.amountMax) && (
+                    <button
+                        onClick={() => setFilters({
+                            search: "",
+                            status: "",
+                            category: "",
+                            dateFrom: "",
+                            dateTo: "",
+                            amountMin: "",
+                            amountMax: "",
+                        })}
+                        style={{
+                            fontSize: 12,
+                            color: "var(--blue)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontWeight: 500,
+                            textDecoration: "underline",
+                        }}
+                    >
+                        Clear filters
+                    </button>
+                )}
             </div>
 
             {isLoading ? (

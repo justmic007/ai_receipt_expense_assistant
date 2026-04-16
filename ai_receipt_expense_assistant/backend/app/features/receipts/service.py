@@ -173,13 +173,47 @@ def get_batch_status(db: Session, batch_id: str, user_id: str) -> ReceiptBatch:
     return batch
 
 
-def get_user_receipts(db: Session, user_id: str) -> list:
-    return (
-        db.query(Receipt)
-        .filter(Receipt.user_id == uuid.UUID(user_id))
-        .order_by(Receipt.created_at.desc())
-        .all()
-    )
+def get_user_receipts(
+    db: Session,
+    user_id: str,
+    search: str = None,
+    status: str = None,
+    category: str = None,
+    date_from: str = None,
+    date_to: str = None,
+    amount_min: float = None,
+    amount_max: float = None,
+) -> list:
+    query = db.query(Receipt).filter(Receipt.user_id == uuid.UUID(user_id))
+
+    # Search by merchant name (case-insensitive substring match)
+    if search:
+        query = query.filter(
+            Receipt.merchant_name.ilike(f"%{search}%")
+            | Receipt.original_filename.ilike(f"%{search}%")
+        )
+
+    # Filter by status
+    if status:
+        query = query.filter(Receipt.status == status)
+
+    # Filter by category
+    if category:
+        query = query.filter(Receipt.category == category)
+
+    # Filter by date range
+    if date_from:
+        query = query.filter(Receipt.created_at >= date_from)
+    if date_to:
+        query = query.filter(Receipt.created_at <= date_to)
+
+    # Filter by amount range
+    if amount_min is not None:
+        query = query.filter(Receipt.total_amount >= amount_min)
+    if amount_max is not None:
+        query = query.filter(Receipt.total_amount <= amount_max)
+
+    return query.order_by(Receipt.created_at.desc()).all()
 
 
 def get_receipt_by_id(db: Session, receipt_id: str, user_id: str) -> Receipt:

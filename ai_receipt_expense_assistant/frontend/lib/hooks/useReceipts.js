@@ -2,11 +2,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 
-export function useReceipts() {
+export function useReceipts(filters = {}) {
+    const { search = "", status = "", category = "", dateFrom = "", dateTo = "", amountMin = "", amountMax = "" } = filters;
+
     return useQuery({
-        queryKey: ["receipts"],
+        queryKey: ["receipts", { search, status, category, dateFrom, dateTo, amountMin, amountMax }],
         queryFn: async () => {
-            const res = await api.get("/receipts");
+            const params = new URLSearchParams();
+            if (search) params.append("search", search);
+            if (status) params.append("status", status);
+            if (category) params.append("category", category);
+            if (dateFrom) params.append("date_from", dateFrom);
+            if (dateTo) params.append("date_to", dateTo);
+            if (amountMin) params.append("amount_min", amountMin);
+            if (amountMax) params.append("amount_max", amountMax);
+
+            const url = `/receipts${params.toString() ? "?" + params.toString() : ""}`;
+            const res = await api.get(url);
             return res.data;
         },
     });
