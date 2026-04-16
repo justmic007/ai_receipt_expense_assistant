@@ -198,8 +198,27 @@ def export_receipts(
 def list_receipts(
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db),
+    search: str = Query(None, description="Search by merchant name or filename"),
+    status: str = Query(
+        None, description="Filter by status: completed, processing, failed"
+    ),
+    category: str = Query(None, description="Filter by category"),
+    date_from: str = Query(None, description="Filter receipts from date (YYYY-MM-DD)"),
+    date_to: str = Query(None, description="Filter receipts to date (YYYY-MM-DD)"),
+    amount_min: float = Query(None, description="Minimum amount"),
+    amount_max: float = Query(None, description="Maximum amount"),
 ):
-    receipts = service.get_user_receipts(db, user_id)
+    receipts = service.get_user_receipts(
+        db=db,
+        user_id=user_id,
+        search=search,
+        status=status,
+        category=category,
+        date_from=date_from,
+        date_to=date_to,
+        amount_min=amount_min,
+        amount_max=amount_max,
+    )
     return ReceiptListResponse(total=len(receipts), items=receipts)
 
 
