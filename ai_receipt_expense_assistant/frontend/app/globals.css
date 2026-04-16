@@ -81,6 +81,10 @@ button {
   background: var(--border-hover);
 }
 
+.summary-grid {
+  grid-template-columns: 1fr !important;
+}
+
 @media (min-width: 1024px) {
   .dashboard-stat-grid {
     grid-template-columns: repeat(4, 1fr) !important;
