@@ -55,8 +55,56 @@ export default function Home() {
 
   return (
     <div style={{ background: "var(--bg)" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-section {
+            grid-template-columns: 1fr !important;
+            min-height: auto !important;
+          }
+          .hero-left {
+            padding: 40px 24px !important;
+          }
+          .hero-right {
+            min-height: 400px !important;
+          }
+          .hero-h1 {
+            font-size: 32px !important;
+          }
+          .hero-p {
+            font-size: 16px !important;
+          }
+          .hero-buttons {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .hero-btn {
+            width: 100% !important;
+            padding: 14px 24px !important;
+          }
+          .nav {
+            padding: 12px 24px !important;
+          }
+          .features-section {
+            padding: 60px 24px !important;
+          }
+          .how-it-works-section {
+            padding: 60px 24px !important;
+          }
+          .cta-section {
+            padding: 60px 24px !important;
+          }
+          .cta-button {
+            width: 100% !important;
+            padding: 14px 24px !important;
+          }
+          .footer {
+            padding: 24px !important;
+          }
+        }
+      `}</style>
       {/* Navigation */}
       <nav
+        className="nav"
         style={{
           display: "flex",
           alignItems: "center",
@@ -100,6 +148,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section
+        className="hero-section"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
@@ -110,6 +159,7 @@ export default function Home() {
       >
         {/* Left: Content */}
         <div
+          className="hero-left"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -118,10 +168,11 @@ export default function Home() {
             color: "white",
           }}
         >
-          <h1 style={{ fontSize: 44, fontWeight: 700, marginBottom: 16, lineHeight: 1.2 }}>
+          <h1 className="hero-h1" style={{ fontSize: 44, fontWeight: 700, marginBottom: 16, lineHeight: 1.2 }}>
             Track expenses with the power of AI
           </h1>
           <p
+            className="hero-p"
             style={{
               fontSize: 18,
               color: "rgba(255, 255, 255, 0.7)",
@@ -133,8 +184,9 @@ export default function Home() {
           </p>
 
           {/* CTA Buttons */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 48 }}>
+          <div className="hero-buttons" style={{ display: "flex", gap: 16, marginBottom: 48 }}>
             <button
+              className="hero-btn"
               onClick={() => router.push("/register")}
               style={{
                 padding: "12px 32px",
@@ -153,6 +205,7 @@ export default function Home() {
               Get Started Free
             </button>
             <button
+              className="hero-btn"
               onClick={() => document.getElementById("features").scrollIntoView({ behavior: "smooth" })}
               style={{
                 padding: "12px 32px",
@@ -203,6 +256,7 @@ export default function Home() {
 
         {/* Right: Dashboard Mockup */}
         <div
+          className="hero-right"
           style={{
             display: "flex",
             alignItems: "center",
@@ -384,7 +438,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" style={{ padding: "80px 40px", background: "var(--bg)" }}>
+      <section className="features-section" id="features" style={{ padding: "80px 40px", background: "var(--bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2
             style={{
@@ -455,7 +509,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section style={{ padding: "80px 40px", background: "var(--card-bg)", borderTop: "1px solid var(--border)" }}>
+      <section className="how-it-works-section" style={{ padding: "80px 40px", background: "var(--card-bg)", borderTop: "1px solid var(--border)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2
             style={{
@@ -508,7 +562,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section style={{ padding: "80px 40px", background: "var(--bg)", textAlign: "center" }}>
+      <section className="cta-section" style={{ padding: "80px 40px", background: "var(--bg)", textAlign: "center" }}>
         <h2
           style={{
             fontSize: 36,
@@ -529,6 +583,7 @@ export default function Home() {
           Start tracking your expenses with AI today — it only takes a minute to get started.
         </p>
         <button
+          className="cta-button"
           onClick={() => router.push("/register")}
           style={{
             padding: "14px 40px",
@@ -550,6 +605,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer
+        className="footer"
         style={{
           padding: "32px 40px",
           borderTop: "1px solid var(--border)",
