@@ -68,7 +68,7 @@ export default function Home() {
             min-height: 400px !important;
           }
           .hero-h1 {
-            font-size: 32px !important;
+            font-size: 36px !important;
           }
           .hero-p {
             font-size: 16px !important;
@@ -99,6 +99,16 @@ export default function Home() {
           }
           .footer {
             padding: 24px !important;
+          }
+          .feature-card {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+          }
+          .feature-icon {
+            width: 40px !important;
+            height: 40px !important;
+          }
+          .dashboard-preview {
+            padding: 30px !important;
           }
         }
       `}</style>
@@ -267,6 +277,7 @@ export default function Home() {
           }}
         >
           <div
+            className="dashboard-preview"
             style={{
               width: "100%",
               maxWidth: 380,
@@ -472,6 +483,7 @@ export default function Home() {
             {features.map((feature, idx) => (
               <div
                 key={idx}
+                className="feature-card"
                 style={{
                   background: "var(--card-bg)",
                   border: "1px solid var(--border)",
@@ -492,7 +504,8 @@ export default function Home() {
                 }}
               >
                 <feature.icon
-                  size={32}
+                  className="feature-icon"
+                  size={40}
                   color="var(--blue)"
                   style={{ marginBottom: 16 }}
                 />
