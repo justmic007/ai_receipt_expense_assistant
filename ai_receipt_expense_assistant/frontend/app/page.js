@@ -150,7 +150,7 @@ export default function Home() {
               onMouseEnter={(e) => (e.target.style.opacity = "0.9")}
               onMouseLeave={(e) => (e.target.style.opacity = "1")}
             >
-              Get Started
+              Get Started Free
             </button>
             <button
               onClick={() => document.getElementById("features").scrollIntoView({ behavior: "smooth" })}
@@ -201,7 +201,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right: Visual */}
+        {/* Right: Dashboard Mockup */}
         <div
           style={{
             display: "flex",
@@ -209,26 +209,176 @@ export default function Home() {
             justifyContent: "center",
             background: "rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(10px)",
+            padding: 40,
           }}
         >
           <div
             style={{
-              width: 300,
-              height: 400,
-              background: "rgba(255, 255, 255, 0.1)",
+              width: "100%",
+              maxWidth: 380,
+              background: "var(--card-bg)",
               borderRadius: 16,
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-              gap: 16,
+              border: "1px solid var(--border)",
+              overflow: "hidden",
+              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
             }}
           >
-            <Receipt size={48} color="rgba(255, 255, 255, 0.3)" />
-            <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.4)", textAlign: "center" }}>
-              Dashboard Preview
-            </p>
+            {/* Dashboard Header */}
+            <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, marginBottom: 4 }}>
+                Dashboard Preview
+              </p>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
+                April 2026
+              </h3>
+            </div>
+
+            {/* Stat Cards */}
+            <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div
+                  style={{
+                    background: "rgba(59, 130, 246, 0.1)",
+                    borderRadius: 8,
+                    padding: 12,
+                    border: "1px solid rgba(59, 130, 246, 0.2)",
+                  }}
+                >
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, marginBottom: 4 }}>
+                    Total Spent
+                  </p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: "var(--blue)", margin: 0 }}>
+                    $2,450
+                  </p>
+                </div>
+                <div
+                  style={{
+                    background: "rgba(16, 185, 129, 0.1)",
+                    borderRadius: 8,
+                    padding: 12,
+                    border: "1px solid rgba(16, 185, 129, 0.2)",
+                  }}
+                >
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, marginBottom: 4 }}>
+                    Receipts
+                  </p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: "#10b981", margin: 0 }}>
+                    127
+                  </p>
+                </div>
+              </div>
+              <div
+                style={{
+                  background: "rgba(245, 158, 11, 0.1)",
+                  borderRadius: 8,
+                  padding: 12,
+                  border: "1px solid rgba(245, 158, 11, 0.2)",
+                  marginTop: 12,
+                }}
+              >
+                <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, marginBottom: 4 }}>
+                  Avg. Transaction
+                </p>
+                <p style={{ fontSize: 18, fontWeight: 700, color: "#f59e0b", margin: 0 }}>
+                  $19.29
+                </p>
+              </div>
+            </div>
+
+            {/* Mini Chart */}
+            <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", margin: 0, marginBottom: 12 }}>
+                Top Categories
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[
+                  { name: "Groceries", value: 35, color: "#3b82f6" },
+                  { name: "Dining", value: 28, color: "#10b981" },
+                  { name: "Transport", value: 22, color: "#f59e0b" },
+                  { name: "Shopping", value: 15, color: "#ef4444" },
+                ].map((cat, idx) => (
+                  <div key={idx}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 4,
+                      }}
+                    >
+                      <span style={{ fontSize: 12, color: "var(--text-primary)" }}>{cat.name}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)" }}>
+                        {cat.value}%
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 6,
+                        background: "var(--border)",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${cat.value}%`,
+                          background: cat.color,
+                          borderRadius: 3,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Receipts Preview */}
+            <div style={{ padding: 20 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", margin: 0, marginBottom: 12 }}>
+                Recent Receipts
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { name: "Whole Foods", amount: "$87.43", category: "Groceries" },
+                  { name: "Uber Eats", amount: "$32.50", category: "Dining" },
+                  { name: "Shell Gas", amount: "$52.00", category: "Transport" },
+                ].map((receipt, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: 10,
+                      background: "rgba(255, 255, 255, 0.02)",
+                      borderRadius: 6,
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                    }}
+                  >
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>
+                        {receipt.name}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: "var(--text-muted)",
+                          margin: 0,
+                          marginTop: 2,
+                        }}
+                      >
+                        {receipt.category}
+                      </p>
+                    </div>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "var(--blue)", margin: 0 }}>
+                      {receipt.amount}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
