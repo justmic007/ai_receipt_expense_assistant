@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }) {
     useEffect(() => {
         const token = localStorage.getItem("access_token");
         if (!token) {
-            router.replace("/login");
+            router.replace("/");
             return;
         }
         api
@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }) {
             })
             .catch(() => {
                 dispatch(logout());
-                router.replace("/login");
+                router.replace("/");
             });
     }, [router, dispatch]);
 

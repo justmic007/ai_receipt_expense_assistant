@@ -12,7 +12,7 @@ export default function Navbar({ onMenuClick }) {
 
     const handleLogout = () => {
         dispatch(logout());
-        router.replace("/login");
+        router.replace("/");
     };
 
     const initials = user?.full_name
